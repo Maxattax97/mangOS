@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!DOCTYPE variants PUBLIC "-//Red Hat, Inc.//DTD Variants info//EN" "variants2012.dtd">
+<variants>
+    <variant id="Workstation" name="Workstation" type="variant">
+        <arches>
+            <arch>aarch64</arch>
+            <arch>armhfp</arch>
+            <arch>i386</arch>
+            <arch>x86_64</arch>
+        </arches>
+        <groups>
+            <group default="true">base-x</group>
+            <group default="true">container-management</group>
+            <group default="true">core</group>
+            <group default="true">firefox</group>
+            <group default="true">fonts</group>
+            <group default="true">gnome-desktop</group>
+            <group default="true">guest-desktop-agents</group>
+            <group default="true">hardware-support</group>
+            <group default="true">libreoffice</group>
+            <group default="true">multimedia</group>
+            <group default="true">networkmanager-submodules</group>
+            <group default="true">printing</group>
+            <group default="true">workstation-ostree-support</group>
+            <group default="true">workstation-product</group>
+            <group default="true">virtualization</group>
+            <group default="true">arm-tools</group>
+            <!-- Things needed for installation -->
+            <group default="true">anaconda-tools</group>
+            <group default="true">platform-vmware</group>
+        </groups>
+        <environments>
+          <environment display_order="10">workstation-product-environment</environment>
+        </environments>
+    </variant>
+</variants>

@@ -2,17 +2,26 @@
 # http://fedoraproject.org/wiki/Workstation
 # mailto:desktop@lists.fedoraproject.org
 
-%include mangOS-base.ks
-
 #
 # Disable this for now as packagekit is causing compose failures
 # by leaving a gpg-agent around holding /dev/null open.
 #
 #include snippets/packagekit-cached-metadata.ks
 
-part / --size 6656
+%include kickstarts/mangOS-base.ks
+%include kickstarts/terminal/fish.ks
 
-%post
+%packages
+
+#@fonts
+
+#@gnome-desktop
+#@networkmanager-submodules
+#@workstation-product
+
+%end
+
+%post --erroronfail --log common-post.log
 
 cat >> /etc/rc.d/init.d/livesys << EOF
 
@@ -54,6 +63,7 @@ if [ -f /usr/share/applications/liveinst.desktop ]; then
   # need to move it to anaconda.desktop to make shell happy
   mv /usr/share/applications/liveinst.desktop /usr/share/applications/anaconda.desktop
 
+# File explorer, Digital assistant, overview, web browser, email, contacts, calendar, notes, tasks, maps, images, messenger, video chat, writer, spreadsheet, presentation, news, music, store, settings | downloads, trash
   cat >> /usr/share/glib-2.0/schemas/org.gnome.shell.gschema.override << FOE
 [org.gnome.shell]
 favorite-apps=['firefox.desktop', 'evolution.desktop', 'rhythmbox.desktop', 'shotwell.desktop', 'org.gnome.Nautilus.desktop', 'anaconda.desktop']
@@ -68,7 +78,7 @@ FOE
 
   # Copy Anaconda branding in place
   if [ -d /usr/share/lorax/product/usr/share/anaconda ]; then
-    cp -a /usr/share/lorax/product/* /
+    cp -a "/usr/share/lorax/product/*" /
   fi
 fi
 
@@ -80,6 +90,7 @@ cat > /etc/gdm/custom.conf << FOE
 [daemon]
 AutomaticLoginEnable=True
 AutomaticLogin=liveuser
+WaylandEnable=False
 FOE
 
 # Turn off PackageKit-command-not-found while uninstalled

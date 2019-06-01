@@ -16,29 +16,48 @@ firewall --enabled --service=mdns
 xconfig --startxonboot
 zerombr
 clearpart --all
-part / --size 5120 --fstype ext4
+# This partition size is for the live image anyway, the installation will change.
+part / --size 6144 --fstype ext4
 services --enabled=NetworkManager,ModemManager --disabled=sshd
 network --bootproto=dhcp --device=link --activate
 rootpw --lock --iscrypted locked
 shutdown
 
 # Point to the main (non-Rawhide) Fedora repositories.
-repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
-repo --name=updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=$basearch
-#repo --name=updates-testing --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f$releasever&arch=$basearch
-url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
+repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=x86_64
+repo --name=updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=x86_64
+repo --name=modular --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-modular-$releasever&arch=x86_64
+#repo --name=updates-testing --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f$releasever&arch=x86_64
+url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=x86_64
+
+# Include RPMFusion repositories.
+repo --name=rpmfusion-free --mirrorlist=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-$releasever&arch=x86_64
+repo --name=rpmfusion-free-updates --mirrorlist=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-updates-released-$releasever&arch=x86_64
+repo --name=rpmfusion-nonfree --mirrorlist=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-$releasever&arch=x86_64
+repo --name=rpmfusion-nonfree-updates --mirrorlist=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-updates-released-$releasever&arch=x86_64
+
+# Include Google Chrome's Repositories.
+repo --name=google --baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
+
+
+%pre
+
+# Enable fastest mirror for DNF.
+echo "fastestmirror=true" >> /etc/dnf/dnf.conf
+
+%end
 
 %packages
 @base-x
 @guest-desktop-agents
 @standard
 @core
-@fonts
-@input-methods
-@dial-up
-@multimedia
-@hardware-support
-@printing
+#@input-methods
+#@dial-up
+#@multimedia
+#@hardware-support
+#@printing
+util-linux-user
 
 # Explicitly specified here:
 # <notting> walters: because otherwise dependency loops cause yum issues.
@@ -70,7 +89,7 @@ glibc-all-langpacks
 initscripts
 %end
 
-%post
+%post --erroronfail --log base-post.log
 # FIXME: it'd be better to get this installed from a package
 cat > /etc/rc.d/init.d/livesys << EOF
 #!/bin/bash
@@ -181,11 +200,16 @@ fi
 
 # add liveuser user with no passwd
 action "Adding live user" useradd \$USERADDARGS -c "Live System User" liveuser
-passwd -d liveuser > /dev/null
+#passwd -d liveuser > /dev/null
+#usermod --password $(echo "liveuser" | openssl passwd -1 -stdin) liveuser
+#usermod --password $(openssl passwd -1 liveuser) liveuser
+chpasswd 'liveuser:liveuser'
 usermod -aG wheel liveuser > /dev/null
 
 # Remove root password lock
-passwd -d root > /dev/null
+#passwd -d root > /dev/null
+chpasswd 'root:root'
+#usermod --password $(openssl passwd -1 root) root
 
 # turn off firstboot for livecd boots
 systemctl --no-reload disable firstboot-text.service 2> /dev/null || :
@@ -331,7 +355,7 @@ echo 'File created by kickstart. See systemd-update-done.service(8).' \
 
 # Drop the rescue kernel and initramfs, we don't need them on the live media itself.
 # See bug 1317709
-rm -f /boot/*-rescue*
+rm -f "/boot/*-rescue*"
 
 # Disable network service here, as doing it in the services line
 # fails due to RHBZ #1369794
@@ -344,8 +368,8 @@ touch /etc/machine-id
 %end
 
 
-%post --nochroot
-cp $INSTALL_ROOT/usr/share/licenses/*-release/* $LIVE_ROOT/
+%post --nochroot --erroronfail --log base-post-nochroot.log
+#cp "$INSTALL_ROOT/usr/share/licenses/*-release/*" "$LIVE_ROOT/"
 
 # only works on x86, x86_64
 if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then

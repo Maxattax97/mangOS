@@ -1,13 +1,16 @@
 SCRIPTS=./scripts/
+DOCKER=./docker/
 
-all: detect-root build-nonlibre build-libre
+all: nonlibre libre
 
-detect-root:
-	@bash "${SCRIPTS}/detect-root.sh"
-
-build-libre: detect-root
+libre:
 	@bash "${SCRIPTS}/build.sh" libre
 
-build-nonlibre: detect-root
+nonlibre:
 	@bash "${SCRIPTS}/build.sh" nonlibre
 
+docker:
+	@bash "${DOCKER}/build.sh"
+
+enter:
+	@sudo bash "${DOCKER}/enter.sh"

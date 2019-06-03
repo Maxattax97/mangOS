@@ -10,18 +10,23 @@
 lang en_US.UTF-8
 keyboard us
 timezone US/Eastern
-auth --useshadow --passalgo=sha512
+authselect select nis
 selinux --enforcing
 firewall --enabled --service=mdns
-xconfig --startxonboot
+#xconfig --startxonboot
 zerombr
 clearpart --all
 # This partition size is for the live image anyway, the installation will change.
 part / --size 6144 --fstype ext4
-services --enabled=NetworkManager,ModemManager --disabled=sshd
-network --bootproto=dhcp --device=link --activate
-rootpw --lock --iscrypted locked
+#services --enabled=NetworkManager,ModemManager --disabled=sshd
+#network --bootproto=dhcp --device=link --activate
+#rootpw --lock --iscrypted locked
+rootpw root
 shutdown
+eula --agree
+#firewall --disabled
+#selinux --disabled
+skipx
 
 # Point to the main (non-Rawhide) Fedora repositories.
 repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=x86_64
@@ -200,15 +205,17 @@ fi
 
 # add liveuser user with no passwd
 action "Adding live user" useradd \$USERADDARGS -c "Live System User" liveuser
-#passwd -d liveuser > /dev/null
+passwd -d liveuser
+passwd -u liveuser
 #usermod --password $(echo "liveuser" | openssl passwd -1 -stdin) liveuser
 #usermod --password $(openssl passwd -1 liveuser) liveuser
-chpasswd 'liveuser:liveuser'
+#chpasswd 'liveuser:liveuser'
 usermod -aG wheel liveuser > /dev/null
 
 # Remove root password lock
-#passwd -d root > /dev/null
-chpasswd 'root:root'
+#passwd -u root
+#passwd -d root
+#chpasswd 'root:root'
 #usermod --password $(openssl passwd -1 root) root
 
 # turn off firstboot for livecd boots

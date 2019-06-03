@@ -3,6 +3,7 @@ fish
 %end
 
 %post
-#chsh -s /usr/bin/fish liveuser
-#usermod --shell /bin/fish liveuser
+sed -i -- 's/bash/zsh/g' /etc/default/useradd
+sed -i -- 's/bash/zsh/g' /etc/adduser.conf
+sed -i -- 's/bash/zsh/g' /etc/passwd
 %end

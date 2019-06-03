@@ -9,6 +9,9 @@ libre:
 nonlibre:
 	@bash "${SCRIPTS}/build.sh" nonlibre
 
+minimal:
+	@bash "${SCRIPTS}/build.sh" minimal
+
 docker:
 	@bash "${DOCKER}/build.sh"
 

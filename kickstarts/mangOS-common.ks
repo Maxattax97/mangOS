@@ -18,6 +18,8 @@
 #@gnome-desktop
 #@networkmanager-submodules
 #@workstation-product
+#signal-desktop
+#albert
 
 %end
 

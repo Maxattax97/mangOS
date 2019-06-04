@@ -1,3 +1,4 @@
+# vim: set ft=sh
 # Maintained by the Fedora Workstation WG:
 # http://fedoraproject.org/wiki/Workstation
 # mailto:desktop@lists.fedoraproject.org
@@ -8,43 +9,26 @@
 #
 #include snippets/packagekit-cached-metadata.ks
 
-%include kickstarts/mangOS-base.ks
+%include kickstarts/mangOS-live-base.ks
 %include kickstarts/terminal/fish.ks
+
+xconfig --defaultdesktop GNOME
 
 %packages
 
 #@fonts
 
-#@gnome-desktop
-#@networkmanager-submodules
-#@workstation-product
-#signal-desktop
-#albert
+@gnome-desktop
+signal-desktop
+albert
 
 %end
 
-%post --erroronfail --log common-post.log
-
-cat >> /etc/rc.d/init.d/livesys << EOF
-
-
-# disable gnome-software automatically downloading updates
-cat >> /usr/share/glib-2.0/schemas/org.gnome.software.gschema.override << FOE
-[org.gnome.software]
-download-updates=false
-FOE
-
-# don't autostart gnome-software session service
-rm -f /etc/xdg/autostart/gnome-software-service.desktop
-
-# disable the gnome-software shell search provider
-cat >> /usr/share/gnome-shell/search-providers/org.gnome.Software-search-provider.ini << FOE
-DefaultDisabled=true
-FOE
+%post
 
 # don't run gnome-initial-setup
-mkdir ~liveuser/.config
-touch ~liveuser/.config/gnome-initial-setup-done
+mkdir -p /home/mango/.config
+touch /home/mango/.config/gnome-initial-setup-done
 
 # suppress anaconda spokes redundant with gnome-initial-setup
 cat >> /etc/sysconfig/anaconda << FOE
@@ -91,7 +75,7 @@ glib-compile-schemas /usr/share/glib-2.0/schemas
 cat > /etc/gdm/custom.conf << FOE
 [daemon]
 AutomaticLoginEnable=True
-AutomaticLogin=liveuser
+AutomaticLogin=mango
 WaylandEnable=False
 FOE
 

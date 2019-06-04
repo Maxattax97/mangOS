@@ -1,3 +1,4 @@
+# vim: ft=sh
 %include kickstarts/mangOS-common.ks
 
 %packages

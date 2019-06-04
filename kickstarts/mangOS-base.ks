@@ -1,3 +1,4 @@
+# vim: ft=sh
 # mangOS-base.ks
 #
 # Defines the basics for all kickstarts
